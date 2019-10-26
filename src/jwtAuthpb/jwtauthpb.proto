@@ -1,0 +1,41 @@
+syntax = "proto3";
+package jwtauth;
+option go_package="jwtauthpb";
+
+message Jwt {
+  string jwt = 1;
+}
+
+message JwtCheckResult {
+  //jwt
+  string user = 1;
+  string email = 2;
+}
+
+message AuthCheckResult {
+  //jwt
+  string user = 1;
+  string email = 2;
+  //jwt register certification
+  bool register = 3;
+}
+
+message JwtRequest {
+  Jwt jwt_request = 1;
+}
+
+message JwtResponse {
+  JwtCheckResult jwt_check_result = 1;
+}
+
+message AuthResponse {
+  AuthCheckResult auth_check_result = 1;
+}
+
+service JwtService {
+  //jwt
+  rpc JwtCheck(JwtRequest) returns (JwtResponse) {};
+
+  //Auth
+  rpc AuthCheck(JwtRequest) returns (AuthResponse) {};
+}

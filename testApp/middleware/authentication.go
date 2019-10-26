@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	jwtauthclient "github.com/k-washi/example-golang-jwt-auth/src/client/jwtAuthClient"
 )
 
 /*
@@ -17,21 +18,34 @@ import (
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		/**/
-		ok, err := true, nil
+		payload, register, err := jwtauthclient.JwtFBgRPCclient.ConfirmAuth(c)
 		if err != nil {
-			log.Printf("Authenticate application err")
+			log.Printf("JWT application err")
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"status":  http.StatusInternalServerError,
-				"message": "Authenticate application err",
+				"message": "JWT application: " + err.Error(),
 			})
 		}
-		if ok {
+		if register {
+			c.JSON(http.StatusOK, gin.H{
+				"status":  http.StatusOK,
+				"message": "jwt Register",
+			})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status":  http.StatusInternalServerError,
+				"message": "jwt authorization error",
+			})
+		}
+
+		if payload.User != "" {
 			c.Next()
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"status":  http.StatusInternalServerError,
-				"message": "Authentication error",
+				"message": "jwt authorization error",
 			})
 		}
+
 	}
 }

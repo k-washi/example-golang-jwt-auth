@@ -3,6 +3,8 @@ package contoroller
 import (
 	"net/http"
 
+	jwtauthclient "github.com/k-washi/example-golang-jwt-auth/src/client/jwtAuthClient"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,15 +14,25 @@ type SuccessResponse struct {
 	Message string `json:"message"`
 }
 
-func GetAuthSuccessStatus(c *gin.Context) {
+//GetJWTSuccessStatus jwt success pattern
+func GetJWTSuccessStatus(c *gin.Context) {
+	payload, err := jwtauthclient.JwtFBgRPCclient.GetJwtPayloadHeader(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  http.StatusInternalServerError,
+			"message": "JWT error: " + err.Error(),
+		})
+	}
+
 	res := SuccessResponse{
 		Status:  http.StatusOK,
-		Message: "Authenticated",
+		Message: "Authenticated: " + payload.User + " /" + payload.Email,
 	}
 	c.JSON(http.StatusOK, res)
 }
 
-func GetJWTSuccessStatus(c *gin.Context) {
+//GetAuthSuccessStatus auth success pattern
+func GetAuthSuccessStatus(c *gin.Context) {
 	res := SuccessResponse{
 		Status:  http.StatusOK,
 		Message: "Authorized",

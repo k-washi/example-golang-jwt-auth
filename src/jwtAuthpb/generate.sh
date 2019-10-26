@@ -1,0 +1,1 @@
+protoc src/jwtAuthpb/jwtAuthpb.proto  --go_out=plugins=grpc:.

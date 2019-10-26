@@ -4,6 +4,10 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/k-washi/example-golang-jwt-auth/src/utils"
+
+	jwtauthclient "github.com/k-washi/example-golang-jwt-auth/src/client/jwtAuthClient"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,34 +19,45 @@ import (
 func JwtMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		/**/
-		ok, register, err := true, false, nil
+		jwtPayload, err := jwtauthclient.JwtFBgRPCclient.ConfirmJwt(c)
 		if err != nil {
-			log.Printf("JWT application err")
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"status":  http.StatusInternalServerError,
-				"message": "JWT application err",
-			})
-		}
-		if register {
-			c.JSON(http.StatusOK, gin.H{
-				"status":  http.StatusOK,
-				"message": "jwt Register",
-			})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"status":  http.StatusInternalServerError,
-				"message": "jwt authorization error",
-			})
-		}
+			log.Printf("Authenticate application err")
+			c.JSON(http.StatusInternalServerError,
+				utils.NewAPIError(http.StatusInternalServerError, "Authenticate application: "+err.Error()),
+			)
+			c.Abort()
+			return
 
-		if ok {
-			c.Next()
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"status":  http.StatusInternalServerError,
-				"message": "jwt authorization error",
-			})
 		}
+		if jwtPayload != nil {
+			if jwtPayload.User != "" {
+
+				_, err := jwtauthclient.JwtFBgRPCclient.SetJwtPayloadHeader(c, jwtPayload)
+				if err != nil {
+					c.JSON(http.StatusInternalServerError,
+						utils.NewAPIError(http.StatusInternalServerError, "Authentication error: "+err.Error()),
+					)
+					c.Abort()
+					return
+				}
+				log.Printf("Authenticate application ok")
+				c.Next()
+				return
+
+			} else {
+				c.JSON(http.StatusInternalServerError,
+					utils.NewAPIError(http.StatusInternalServerError, "Authentication error: "+err.Error()),
+				)
+				c.Abort()
+				return
+
+			}
+		}
+		c.JSON(http.StatusInternalServerError,
+			utils.NewAPIError(http.StatusInternalServerError, "Authentication error: Can not catch jwt authorization"),
+		)
+		c.Abort()
+		return
 
 	}
 }

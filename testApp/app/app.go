@@ -13,7 +13,7 @@ func init() {
 // StartApp router setup
 func StartApp() {
 	mapUrls()
-	if err := router.Run(":8080"); err != nil {
+	if err := router.Run("0.0.0.0:8080"); err != nil {
 		panic(err)
 	}
 }
