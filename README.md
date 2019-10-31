@@ -24,7 +24,7 @@ Firebaseにアクセスして認可を行うサーバー機能は、src/jwtAuthS
 ## Setup
 
 Firebaseのサービスアカウント（Firebase Admin SDK)より秘密鍵ファイルを生成する。
-また、ファイルのパスもk8sで環境変数として設定する。
+また、ファイルのパスも環境変数として設定する。
 
 ```bash
 export GOOGLE_APPLICATION_CREDENTIALS="/tmp/xxxx/service-account-file.json"
