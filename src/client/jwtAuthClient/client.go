@@ -83,8 +83,8 @@ func confirmConnInitialize(c *gin.Context) (string, *grpc.ClientConn, jwtauthpb.
 		return "", nil, nil, err
 	}
 
-	//url := ambassadorHostAndPort.Host + ":" + ambassadorHostAndPort.Port
-	url := ":" + ambassadorHostAndPort.Port
+	url := ambassadorHostAndPort.Host + ":" + ambassadorHostAndPort.Port
+	//url := ":" + ambassadorHostAndPort.Port
 	log.Printf("url:" + url)
 
 	conn, err := grpc.Dial(url, grpc.WithInsecure())

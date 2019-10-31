@@ -1,0 +1,22 @@
+version: '3'
+services:
+  client:
+    image: kwashizaki/example-golang-jwt-auth-client:v1.0.0 
+    container_name: ex-go-jwt-cl
+    restart: always
+    ports:
+      - 8080:8080
+    env_file: testApp/env.txt
+
+
+  server:
+    image: kwashizaki/example-golang-jwt-auth-server:v1.0.0 
+    container_name: ex-go-jwt-sr
+    restart: always
+    ports:
+      - 50051:50051
+    env_file: src/env.txt
+    volumes: 
+      - ./env:/tmp
+
+    
