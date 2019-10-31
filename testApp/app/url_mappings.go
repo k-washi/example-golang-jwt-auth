@@ -6,6 +6,8 @@ import (
 )
 
 func mapUrls() {
+	router.Use(middleware.HeaderSet())
+
 	jwt := router.Group("/jwt")
 	jwt.Use(middleware.JwtMiddleware())
 	jwt.GET("/ex-jwt-auth", contoroller.GetJWTSuccessStatus)

@@ -12,7 +12,7 @@ import (
 )
 
 /*
-認可
+認可 Authorizatoin (AuthZ)
 */
 
 //JwtMiddleware middleware of jwt check
@@ -21,42 +21,34 @@ func JwtMiddleware() gin.HandlerFunc {
 		/**/
 		jwtPayload, err := jwtauthclient.JwtFBgRPCclient.ConfirmJwt(c)
 		if err != nil {
-			log.Printf("Authenticate application err")
+			log.Printf("Error JwtMiddleware: " + err.Error())
 			c.JSON(http.StatusInternalServerError,
-				utils.NewAPIError(http.StatusInternalServerError, "Authenticate application: "+err.Error()),
+				utils.NewAPIError(http.StatusInternalServerError, "Error JwtMiddleware:: "+err.Error()),
 			)
 			c.Abort()
 			return
-
 		}
-		if jwtPayload != nil {
-			if jwtPayload.User != "" {
-
-				_, err := jwtauthclient.JwtFBgRPCclient.SetJwtPayloadHeader(c, jwtPayload)
-				if err != nil {
-					c.JSON(http.StatusInternalServerError,
-						utils.NewAPIError(http.StatusInternalServerError, "Authentication error: "+err.Error()),
-					)
-					c.Abort()
-					return
-				}
-				log.Printf("Authenticate application ok")
-				c.Next()
-				return
-
-			} else {
-				c.JSON(http.StatusInternalServerError,
-					utils.NewAPIError(http.StatusInternalServerError, "Authentication error: "+err.Error()),
-				)
-				c.Abort()
-				return
-
-			}
+		if jwtPayload.User == "" || jwtPayload.Email == "" {
+			log.Printf("Error JwtMiddleware: pyload empty")
+			c.JSON(http.StatusInternalServerError,
+				utils.NewAPIError(http.StatusInternalServerError, "Error JwtMiddleware: pyload empty"),
+			)
+			c.Abort()
+			return
 		}
-		c.JSON(http.StatusInternalServerError,
-			utils.NewAPIError(http.StatusInternalServerError, "Authentication error: Can not catch jwt authorization"),
-		)
-		c.Abort()
+
+		//Set user info to header
+		_, err = jwtauthclient.JwtFBgRPCclient.SetJwtPayloadHeader(c, jwtPayload)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError,
+				utils.NewAPIError(http.StatusInternalServerError, "Error JwtMiddleware: "+err.Error()),
+			)
+			c.Abort()
+			return
+		}
+
+		log.Printf("Authorizetion application ok")
+		c.Next()
 		return
 
 	}

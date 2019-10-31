@@ -2,18 +2,20 @@ package jwtauthserver
 
 import (
 	"context"
+	"errors"
 	"log"
+
+	"firebase.google.com/go/auth"
 
 	firebase "firebase.google.com/go"
 	jwtauthpb "github.com/k-washi/example-golang-jwt-auth/src/jwtAuthpb"
 	"github.com/k-washi/example-golang-jwt-auth/src/utils"
-
+	"github.com/k-washi/jwt-decode/jwtdecode"
 	"google.golang.org/api/option"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type jwtFBgRPCserverServiceInterface interface {
+	//createAuthCreate(*auth.Client) error
 	JwtCheck(context.Context, *jwtauthpb.JwtRequest) (*jwtauthpb.JwtResponse, error)
 	AuthCheck(context.Context, *jwtauthpb.JwtRequest) (*jwtauthpb.AuthResponse, error)
 }
@@ -21,6 +23,9 @@ type jwtFBgRPCserverServiceInterface interface {
 var (
 	//JwtFBgRPCserver jwt authorization server
 	JwtFBgRPCserver jwtFBgRPCserverServiceInterface
+
+	//jwtFBAuthClient auth client credented by google app credentials file
+	jwtFBAuthClient *auth.Client
 )
 
 type jwtFBgRPCserver struct{}
@@ -28,45 +33,21 @@ type jwtFBgRPCserver struct{}
 func init() {
 
 	JwtFBgRPCserver = &jwtFBgRPCserver{}
-}
 
-//JwtCheck jwt check by firebase and return user infomation
-func (*jwtFBgRPCserver) JwtCheck(ctx context.Context, req *jwtauthpb.JwtRequest) (*jwtauthpb.JwtResponse, error) {
-
-	jwt := req.GetJwtRequest().GetJwt()
-	if jwt == "" {
-
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			"Recived a empty string",
-		)
-	}
-
-	res, err := confirmJwtWithFB(jwt)
+	c, err := authConfig()
 	if err != nil {
-		log.Printf("Error jwtCheck with firebase: " + err.Error())
-		return nil, err
+		log.Fatalf("Error: Firebase auth can't credent")
 	}
+	jwtFBAuthClient = c
+	/*
+		if err = JwtFBgRPCserver.createAuthCreate(c); err != nil {
+			log.Fatalf("Error: Firebase auth can't set")
+		}
+	*/
 
-	if ctx.Err() == context.Canceled {
-		return nil, status.Error(codes.Canceled, "the client canceld the request")
-	}
-
-	return res, nil
 }
 
-func (*jwtFBgRPCserver) AuthCheck(ctx context.Context, req *jwtauthpb.JwtRequest) (*jwtauthpb.AuthResponse, error) {
-	return &jwtauthpb.AuthResponse{
-		AuthCheckResult: &jwtauthpb.AuthCheckResult{
-			User:     "",
-			Email:    "",
-			Register: true,
-		},
-	}, nil
-}
-
-func confirmJwtWithFB(jwt string) (*jwtauthpb.JwtResponse, error) {
-	//JWT検証
+func authConfig() (*auth.Client, error) {
 	GoogleAppCred, err := utils.GetGoogleAppCredentialsFilePath()
 	if err != nil {
 		return nil, err
@@ -83,38 +64,21 @@ func confirmJwtWithFB(jwt string) (*jwtauthpb.JwtResponse, error) {
 		log.Printf("error: %v\n", err)
 		return nil, err
 	}
+	return auth, nil
+}
 
-	token, err := auth.VerifyIDToken(context.Background(), jwt)
+//jwtUserGet return user info
+func getUserInfoFromJwt(jwt string) (string, string, error) {
+	//jwt decompose
+	hCS, err := jwtdecode.JwtDecode.DecomposeFB(jwt)
 	if err != nil {
-		log.Printf("error: %v\n", err)
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			"Failed to verify jwt token by firebase",
-		)
+		return "", "", errors.New("Error jwt decompose: " + err.Error())
+	}
+	//jwt deconde
+	payload, err := jwtdecode.JwtDecode.DecodeClaimFB(hCS[1])
+	if err != nil {
+		return "", "", errors.New("Error jwt decode: " + err.Error())
 	}
 
-	res := &jwtauthpb.JwtResponse{JwtCheckResult: &jwtauthpb.JwtCheckResult{}}
-	user := token.Claims["user_id"]
-	if userStr, ok := user.(string); ok {
-		res.JwtCheckResult.User = userStr
-	} else {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			"Failed to get user name from firebase",
-		)
-	}
-
-	email := token.Claims["email"]
-	if emailStr, ok := email.(string); ok {
-		res.JwtCheckResult.Email = emailStr
-	} else {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			"Failed to get email from firebase",
-		)
-	}
-
-	log.Printf("JwtCheck Success: " + res.JwtCheckResult.User)
-	return res, nil
-
+	return payload.Subject, payload.Email, nil
 }

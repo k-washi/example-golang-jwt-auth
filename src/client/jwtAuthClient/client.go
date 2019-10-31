@@ -2,7 +2,13 @@ package jwtauthclient
 
 import (
 	"errors"
+	"fmt"
 	"log"
+	"strings"
+
+	jwtauthpb "github.com/k-washi/example-golang-jwt-auth/src/jwtAuthpb"
+
+	"google.golang.org/grpc"
 
 	"github.com/k-washi/example-golang-jwt-auth/src/utils"
 
@@ -11,7 +17,7 @@ import (
 
 type jwtFBgRPCclientServiceInterface interface {
 	ConfirmJwt(*gin.Context) (*utils.JwtPayload, error)
-	ConfirmAuth(c *gin.Context) (*utils.JwtPayload, bool, error)
+	ConfirmAuth(c *gin.Context) (*utils.JwtPayload, error)
 	SetJwtPayloadHeader(*gin.Context, *utils.JwtPayload) (*gin.Context, error)
 	GetJwtPayloadHeader(*gin.Context) (*utils.JwtPayload, error)
 }
@@ -62,4 +68,31 @@ func (s *jwtFBgRPCclient) GetJwtPayloadHeader(c *gin.Context) (*utils.JwtPayload
 		return nil, errors.New("Error: jwt payload type assersion")
 	}
 	return res, nil
+}
+
+//ConfirmConnInitialize initialize confirm process
+func confirmConnInitialize(c *gin.Context) (string, *grpc.ClientConn, jwtauthpb.JwtServiceClient, error) {
+	//Authorization: Bearer e7?aXaGEGkKLK...
+	authHeader := c.GetHeader("Authorization")
+	idToken := strings.Replace(authHeader, "Bearer ", "", 1)
+
+	//get env value of host and port
+	ambassadorHostAndPort, err := utils.GetAmbassadorHostAndPort()
+	if err != nil {
+		log.Printf("Error ConfirmJwt Init: " + err.Error())
+		return "", nil, nil, err
+	}
+
+	url := ambassadorHostAndPort.Host + ":" + ambassadorHostAndPort.Port
+	log.Printf("url:" + url)
+
+	conn, err := grpc.Dial(url, grpc.WithInsecure())
+	if err != nil {
+		log.Printf("Error ConfirmJwt Init: " + err.Error())
+		return "", nil, nil, fmt.Errorf("JwtFBgRPCclient: Could not connect: %v", err)
+	}
+
+	clientConn := jwtauthpb.NewJwtServiceClient(conn)
+
+	return idToken, conn, clientConn, nil
 }

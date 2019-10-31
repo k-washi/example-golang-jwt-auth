@@ -17,6 +17,7 @@ func StartApp() {
 		log.Fatalf("Failed to get env valiable of host and port")
 	}
 	url := ambassadorHostAndPort.Host + ":" + ambassadorHostAndPort.Port
+	log.Printf("url:" + url)
 	lis, err := net.Listen("tcp", url)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
@@ -24,6 +25,7 @@ func StartApp() {
 	s := grpc.NewServer()
 	jwtauthpb.RegisterJwtServiceServer(s, JwtFBgRPCserver)
 
+	log.Printf("gRPC listen Start")
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
