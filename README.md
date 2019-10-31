@@ -21,15 +21,23 @@ Firebaseにアクセスして認可を行うサーバー機能は、src/jwtAuthS
 
 "/auth/ex-authentication"は、サーバ側にすでに一度目のjwtが保存されている場合、2度目のjwtとして扱われ200を返す。一方で、サーバーにjwtが保存されていない場合、一度目のjwtとしてサーバーに保存され、サインイン後のjwtを送るよう202を返す。
 
-
-
 ## Setup
 
 Firebaseのサービスアカウント（Firebase Admin SDK)より秘密鍵ファイルを生成する。
 また、ファイルのパスもk8sで環境変数として設定する。
 
 ```bash
-export GOOGLE_APPLICATION_CREDENTIALS="/home/user/Downloads/service-account-file.json"
+export GOOGLE_APPLICATION_CREDENTIALS="/tmp/xxxx/service-account-file.json"
+
+```
+
+また、アプリケーションのホストとポート、そして、クライアント(Origin)のホストとポートを設定する。
+
+```bash
+export AMBASSADORHOST=localhost
+export PORT=50051
+export ORIGIN_HOST=localhost
+export ORIGIN_PORT=1024
 ```
 
 ## proto Setup
@@ -52,30 +60,13 @@ start test app client
 go run testApp/main.go
 ```
 
+## Docker
 
-## Firebase jwt payload
+client
 
-```json
-//Payload
-{
-  "name": "testuser",
-  "iss": "https://securetoken.google.com/ex-firebase-auth",
-  "aud": "ex-firebase-auth",
-  "auth_time": 1572007184,
-  "user_id": "qZhsF2HfuWZEBghFa4nl2Kidyp22",
-  "sub": "qZhsF2HfuWZEBghFa4nl2Kidyp22",
-  "iat": 1572007184,
-  "exp": 1572010784,
-  "email": "test@test.com",
-  "email_verified": false,
-  "firebase": {
-    "identities": {
-      "email": [
-        "test@test.com"
-      ]
-    },
-    "sign_in_provider": "password"
-  }
-}
+```bash
+
+#build
+docker build -t kwashizaki/example-golang-jwt-auth-client:v1.0.0 -f ./ClientDockerfile .
 
 ```
