@@ -67,7 +67,13 @@ client
 ```bash
 
 #build
-docker build -t kwashizaki/example-golang-jwt-auth-client:v1.0.0 -f ./ClientDockerfile .
+docker build -t kwashizaki/example-golang-jwt-auth-client:v1.0.0 -f ./DockerfileClient .
+docker run -it -p 8080:8080 --env-file=./testApp/env.txt  --link example-golang-jwt-auth-server:localhost --rm --name example-golang-jwt-auth-client kwashizaki/example-golang-jwt-auth-client:v1.0.0  
+
+docker run -it -p 8080:8080 --env-file=./testApp/env.txt --rm --name example-golang-jwt-auth-client kwashizaki/example-golang-jwt-auth-client:v1.0.0 
+
+#Docker hubへpush
+docker push kwashizaki/example-golang-jwt-auth-client:v1.0.0.
 
 ```
 
@@ -76,7 +82,11 @@ server
 ```bash
 
 #build
-docker build -t kwashizaki/example-golang-jwt-auth-client:v1.0.0 -f ./ClientDockerfile .
-docker run -it -p 8080:8080 --env-file=./testApp/env.txt --rm --name example-golang-jwt-auth-client kwashizaki/example-golang-jwt-auth-client:v1.0.0 -e
+docker build -t kwashizaki/example-golang-jwt-auth-server:v1.0.0 -f ./DockerfileServer .
+docker run -it -p 50051:50051 --env-file=./src/env.txt -v $(pwd)/env:/tmp --rm --name example-golang-jwt-auth-server kwashizaki/example-golang-jwt-auth-server:v1.0.0
 
+#Docker hubへpush
+docker push kwashizaki/example-golang-jwt-auth-client:v1.0.0
 ```
+
+
