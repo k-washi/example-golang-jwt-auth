@@ -17,6 +17,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
 	github.com/jstemmer/go-junit-report v0.9.1 // indirect
 	github.com/k-washi/jwt-decode v0.0.0-20191030161530-064fbdca51ff
+	github.com/k-washi/example-golang-jwt-auth
 	github.com/kr/pty v1.1.8 // indirect
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
 	go.opencensus.io v0.22.1 // indirect

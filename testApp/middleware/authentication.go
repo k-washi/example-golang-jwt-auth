@@ -6,11 +6,9 @@ import (
 
 	testutils "github.com/k-washi/example-golang-jwt-auth/testApp/utils"
 
-	"github.com/k-washi/example-golang-jwt-auth/src/utils"
-
-	jwtauthclient "github.com/k-washi/example-golang-jwt-auth/src/client/jwtAuthClient"
-
 	"github.com/gin-gonic/gin"
+	jwtauthclient "github.com/k-washi/example-golang-jwt-auth/src/client/jwtAuthClient"
+	"github.com/k-washi/example-golang-jwt-auth/src/utils"
 )
 
 /*

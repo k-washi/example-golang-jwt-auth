@@ -70,3 +70,13 @@ client
 docker build -t kwashizaki/example-golang-jwt-auth-client:v1.0.0 -f ./ClientDockerfile .
 
 ```
+
+server
+
+```bash
+
+#build
+docker build -t kwashizaki/example-golang-jwt-auth-client:v1.0.0 -f ./ClientDockerfile .
+docker run -it -p 8080:8080 --env-file=./testApp/env.txt --rm --name example-golang-jwt-auth-client kwashizaki/example-golang-jwt-auth-client:v1.0.0 -e
+
+```

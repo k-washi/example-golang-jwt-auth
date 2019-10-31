@@ -13,9 +13,10 @@ COPY go.sum .
 RUN go mod download
 COPY ./client ./client
 COPY ./testApp ./testApp
+COPY Makefile .
 
 RUN make devel-deps
-RUN make testApp/app
+RUN make client/app
 
 #runtime image
 FROM alpine
