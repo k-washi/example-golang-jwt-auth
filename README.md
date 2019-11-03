@@ -51,7 +51,7 @@ src/jwtAuthpb/generate.sh
 config env
 
 ```bash
-srouce env/config.sh
+source env/config.sh
 
 ```
 
@@ -77,7 +77,7 @@ client
 docker build -t kwashizaki/example-golang-jwt-auth-client:v1.0.0 -f ./DockerfileClient .
 
 #Docker hubへpush
-docker push kwashizaki/example-golang-jwt-auth-client:v1.0.0.
+docker push kwashizaki/example-golang-jwt-auth-client:v1.0.0
 
 ```
 
@@ -89,7 +89,7 @@ server
 docker build -t kwashizaki/example-golang-jwt-auth-server:v1.0.0 -f ./DockerfileServer .
 
 #Docker hubへpush
-docker push kwashizaki/example-golang-jwt-auth-client:v1.0.0
+docker push kwashizaki/example-golang-jwt-auth-server:v1.0.0
 ```
 
 docker compose
@@ -99,3 +99,5 @@ doceker-compose up
 
 exit
 ```
+
+#COPY --from=build-step /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt

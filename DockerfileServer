@@ -21,6 +21,7 @@ RUN make bin/app
 #runtime image
 FROM alpine
 COPY --from=build-step /go-app/bin/app /app
+COPY --from=build-step /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 ENTRYPOINT ["./app"]
 
 EXPOSE 50051

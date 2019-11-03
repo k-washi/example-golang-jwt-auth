@@ -103,13 +103,11 @@ func confirmAuthWithFB(jwt string) (*jwtauthpb.AuthResponse, error) {
 					Register: false,
 				}}, nil
 		}
-		log.Print("Error: receved jwt was already registerd")
-		return nil, errors.New("Error: receved jwt was already registerd")
-	}
-
-	//Register jwt
-	if e := jwtRegisterCreate(user, signature); e != nil {
-		return nil, e
+	} else {
+		//Register jwt
+		if e := jwtRegisterCreate(user, signature); e != nil {
+			return nil, e
+		}
 	}
 
 	log.Printf("Success: jwt registerd")

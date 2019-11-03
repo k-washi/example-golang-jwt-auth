@@ -16,7 +16,7 @@ func StartApp() {
 	if err != nil {
 		log.Fatalf("Failed to get env valiable of host and port")
 	}
-	//url := ambassadorHostAndPort.Host + ":" + ambassadorHostAndPort.Port
+
 	url := ":" + ambassadorHostAndPort.Port
 	log.Printf("url:" + url)
 	lis, err := net.Listen("tcp", url)

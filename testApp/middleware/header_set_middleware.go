@@ -1,10 +1,7 @@
 package middleware
 
 import (
-	"fmt"
-	"log"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,20 +12,26 @@ func HeaderSet() gin.HandlerFunc {
 		/*
 		 */
 		//ENV PASS
+		/*
+			OriginHost := os.Getenv("ORIGIN_HOST")
+			if OriginHost == "" {
+				log.Fatalf("Origin env set: Empty host")
+			}
 
-		OriginHost := os.Getenv("ORIGIN_HOST")
-		if OriginHost == "" {
-			log.Fatalf("Origin env set: Empty host")
-		}
+			OriginPort := os.Getenv("ORIGIN_PORT")
+			if OriginPort == "" {
+				log.Fatalf("Origin env set: Empty port")
+			}
 
-		OriginPort := os.Getenv("ORIGIN_PORT")
-		if OriginPort == "" {
-			log.Fatalf("Origin env set: Empty port")
-		}
-		url := "http://" + OriginHost + ":" + OriginPort
-		fmt.Println("origin", url)
+			url := "http://" + OriginHost + ":" + OriginPort
+			if OriginPort == "80" {
+				url = "http://" + OriginHost
+			}
+		*/
 
-		c.Writer.Header().Set("Access-Control-Allow-Origin", url)
+		//fmt.Println("origin", url)
+
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		c.Writer.Header().Set("Access-Control-Max-Age", "86400")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept")
